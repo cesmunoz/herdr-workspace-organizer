@@ -1,0 +1,42 @@
+id = "herdr-workspace-organizer"
+name = "Herdr Workspace Organizer"
+version = "0.1.0"
+description = "Move the focused Herdr workspace up or down, and group tagged workspaces."
+min_herdr_version = "0.9.3"
+platforms = ["linux", "macos"]
+
+[[build]]
+command = ["pnpm", "install", "--frozen-lockfile", "--ignore-scripts"]
+
+[[build]]
+command = ["pnpm", "run", "build"]
+
+[[panes]]
+id = "organizer"
+title = "Workspace Organizer"
+description = "Interactively reorder Herdr workspaces."
+placement = "popup"
+width = 86
+height = "72%"
+command = ["/bin/sh", "scripts/run.sh", "panel"]
+
+[[actions]]
+id = "workspace-up"
+title = "Move workspace up"
+description = "Move the focused workspace one position toward the top."
+contexts = ["workspace", "pane"]
+command = ["/bin/sh", "scripts/run.sh", "up"]
+
+[[actions]]
+id = "workspace-down"
+title = "Move workspace down"
+description = "Move the focused workspace one position toward the bottom."
+contexts = ["workspace", "pane"]
+command = ["/bin/sh", "scripts/run.sh", "down"]
+
+[[actions]]
+id = "sort-workspaces"
+title = "Sort tagged workspaces"
+description = "Stably group FEAT, CHORE, and EXPERIMENT workspaces after leading untagged workspaces."
+contexts = ["global", "workspace", "pane"]
+command = ["/bin/sh", "scripts/run.sh", "sort"]

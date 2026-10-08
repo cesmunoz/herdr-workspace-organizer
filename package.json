@@ -1,0 +1,36 @@
+{
+  "name": "herdr-workspace-organizer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm run build && node --test dist/test/*.test.js",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint --deny-warnings",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "validate": "pnpm run check && pnpm run lint && pnpm run format:check && pnpm test"
+  },
+  "dependencies": {
+    "chalk": "^6.0.1",
+    "commander": "^14.0.3",
+    "effect": "^3.22.2",
+    "lodash-es": "^4.18.1",
+    "slice-ansi": "^9.0.1",
+    "string-width": "^8.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.15.0",
+    "@types/slice-ansi": "^5.0.2",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@12.5.1"
+}

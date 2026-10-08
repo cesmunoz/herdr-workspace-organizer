@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["dist/**", "node_modules/**"],
+  "rules": {
+    "curly": ["error", "all"],
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error"
+  }
+}
