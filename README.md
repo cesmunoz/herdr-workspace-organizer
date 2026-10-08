@@ -28,16 +28,6 @@ pnpm run build
 herdr plugin link "$PWD" --enabled
 ```
 
-After the repository is published, install a fixed revision:
-
-```sh
-herdr plugin install github:OWNER/herdr-workspace-organizer@COMMIT_SHA
-```
-
-During installation, Herdr runs `pnpm install --frozen-lockfile --ignore-scripts` and
-`pnpm run build`. Compilation needs the dev dependencies, so do not install with `--prod`.
-`scripts/run.sh` finds Node when Herdr's daemon has a limited PATH.
-
 ## Open the popup
 
 ```sh
@@ -169,21 +159,7 @@ pnpm run validate
 pnpm run format
 ```
 
-Tools and dependencies:
-
-| Tool                      | Use                                                         |
-| ------------------------- | ----------------------------------------------------------- |
-| Zod                       | Check socket responses and config                           |
-| lodash-es                 | Remove duplicates and make stable sorting rules explicit    |
-| Effect 3                  | Recover from file errors while loading config               |
-| Commander                 | CLI commands, options, help, and argument errors            |
-| Chalk                     | Terminal color helpers                                      |
-| string-width / slice-ansi | Measure width and cut text without breaking ANSI codes      |
-| Oxlint                    | Lint, including required braces and TypeScript safety rules |
-| Oxfmt                     | Format code                                                 |
-| node:test                 | Test ordering, config, and a real local Unix socket         |
-
-See `AGENTS.md` for what each file owns, the rules that must not change, and contribution limits.
+See `AGENTS.md` for the rules that must not change and contribution limits.
 Aside from installing packages, the plugin downloads nothing at runtime.
 
 ## Safety and limits
@@ -200,19 +176,3 @@ Current limits:
 
 Live testing changes your session. Prefer the automated tests. Run live movement tests only with
 permission, and restore the original order afterward.
-
-## Renaming
-
-The plugin was renamed from `herdr-move-panels` to `herdr-workspace-organizer`. If you already have
-it installed, copy the old config before you link the new ID:
-
-```sh
-mkdir -p ~/.config/herdr/plugins/config/herdr-workspace-organizer
-cp ~/.config/herdr/plugins/config/herdr-move-panels/config.json \
-  ~/.config/herdr/plugins/config/herdr-workspace-organizer/config.json
-herdr plugin unlink herdr-move-panels
-herdr plugin link "$PWD" --enabled
-```
-
-Replace `herdr-move-panels` with `herdr-workspace-organizer` in your Herdr bindings, then run
-`herdr server reload-config`. You do not need to rename the folder that holds the local checkout.
