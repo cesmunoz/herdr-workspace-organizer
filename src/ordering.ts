@@ -1,5 +1,5 @@
 import { orderBy } from "lodash-es";
-import { prefixRank, workspaceDepth } from "./core.js";
+import { prefixRank, workspaceDepth, workspaceTreeOrder } from "./core.js";
 import type { Workspace } from "./types.js";
 
 function sortSiblings(
@@ -23,18 +23,19 @@ export function suggestedOrder(
   workspaces: readonly Workspace[],
   order: readonly string[],
 ): readonly Workspace[] {
+  const tree = workspaceTreeOrder(workspaces);
   const result: Workspace[] = [];
   let index = 0;
-  while (index < workspaces.length) {
-    const root = workspaces[index];
+  while (index < tree.length) {
+    const root = tree[index];
     if (root === undefined) {
       break;
     }
     result.push(root);
     index += 1;
     const children: Workspace[] = [];
-    while (index < workspaces.length && workspaceDepth(workspaces, index) === 1) {
-      const child = workspaces[index];
+    while (index < tree.length && workspaceDepth(tree, index) === 1) {
+      const child = tree[index];
       if (child !== undefined) {
         children.push(child);
       }

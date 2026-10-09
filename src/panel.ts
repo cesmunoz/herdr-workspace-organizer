@@ -5,7 +5,7 @@ import { suggestedOrder } from "./ordering.js";
 import { emitKeypressEvents } from "node:readline";
 import type { Key } from "node:readline";
 import { configPath, loadConfig, saveConfig } from "./config.js";
-import { reorderWorkspace, workspaceDepth } from "./core.js";
+import { reorderWorkspace, workspaceDepth, workspaceTreeOrder } from "./core.js";
 import { normalizeOrder } from "./utils.js";
 import type { Workspace, WorkspaceClient } from "./types.js";
 
@@ -190,7 +190,7 @@ export async function runPanel(
   }
   const path = configPath();
   const config = await loadConfig(path);
-  let original = await client.workspaces();
+  let original = workspaceTreeOrder(await client.workspaces());
   let state: PanelState = {
     tab: "manual",
     original,
@@ -302,7 +302,7 @@ export async function runPanel(
       workspace_ids: draft.map((item) => item.workspaceId),
       before_workspace_id: null,
     });
-    original = await client.workspaces();
+    original = workspaceTreeOrder(await client.workspaces());
     update({
       original,
       manualDraft: [...original],

@@ -1,6 +1,6 @@
 id = "herdr-workspace-organizer"
 name = "Herdr Workspace Organizer"
-version = "0.1.0"
+version = "0.1.1"
 description = "Move the focused Herdr workspace up or down, and group tagged workspaces."
 min_herdr_version = "0.9.3"
 platforms = ["linux", "macos"]

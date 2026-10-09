@@ -14,7 +14,7 @@ const client = new HerdrClient(
 const program = new Command()
   .name("herdr-workspace-organizer")
   .description("Organize Herdr workspaces without changing their contents")
-  .version("0.1.0");
+  .version("0.1.1");
 
 for (const direction of ["up", "down"] as const) {
   program

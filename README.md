@@ -90,7 +90,11 @@ app
 notes
 ```
 
-Moving `app` moves its children that sit next to it. Moving a child keeps it among its siblings.
+The panel groups worktrees under their repository root, even when `workspace.list` returns them
+elsewhere in the flat list. Root order and the relative order of each root's children are preserved.
+Opening the panel, cancelling, or pressing Enter without editing does not change the live order.
+
+Moving `app` moves its displayed children together. Moving a child keeps it among its siblings.
 The suggested order sorts children inside each repository tree and leaves the roots in place. A
 workspace with no visible repository root is not attached to another root automatically.
 
@@ -171,7 +175,7 @@ Current limits:
 
 - A draft does not detect changes from other clients before it is applied.
 - Long lists do not scroll, so small terminals can cut off content.
-- Tree grouping assumes children sit next to their parent and that the parent is visible.
+- Tree grouping requires the repository root to be visible; orphan worktrees stay standalone.
 - Some legacy rendering still uses raw ANSI styling next to Chalk.
 
 Live testing changes your session. Prefer the automated tests. Run live movement tests only with

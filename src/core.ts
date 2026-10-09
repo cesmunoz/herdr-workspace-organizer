@@ -44,19 +44,48 @@ function workspaceGroupKey(workspace: Workspace): string {
   return workspace.worktree?.repoKey ?? `workspace:${workspace.workspaceId}`;
 }
 
+export function workspaceTreeOrder(workspaces: readonly Workspace[]): readonly Workspace[] {
+  const roots = new Map<string, string>();
+  for (const workspace of workspaces) {
+    if (workspace.worktree?.isLinked === false && !roots.has(workspace.worktree.repoKey)) {
+      roots.set(workspace.worktree.repoKey, workspace.workspaceId);
+    }
+  }
+  const children = new Map<string, Workspace[]>();
+  const topLevel: Workspace[] = [];
+  for (const workspace of workspaces) {
+    const rootId =
+      workspace.worktree?.isLinked === true ? roots.get(workspace.worktree.repoKey) : undefined;
+    if (rootId === undefined) {
+      topLevel.push(workspace);
+    } else {
+      const siblings = children.get(rootId) ?? [];
+      siblings.push(workspace);
+      children.set(rootId, siblings);
+    }
+  }
+  const result = topLevel.flatMap((workspace) => [
+    workspace,
+    ...(children.get(workspace.workspaceId) ?? []),
+  ]);
+  return result.every((workspace, index) => workspace === workspaces[index]) ? workspaces : result;
+}
+
 export function workspaceDepth(workspaces: readonly Workspace[], index: number): 0 | 1 {
   const workspace = workspaces[index];
   if (workspace?.worktree?.isLinked !== true) {
     return 0;
   }
-  return workspaces.some(
-    (candidate, candidateIndex) =>
-      candidateIndex < index &&
-      candidate.worktree?.repoKey === workspace.worktree?.repoKey &&
-      candidate.worktree?.isLinked === false,
-  )
-    ? 1
-    : 0;
+  for (let previous = index - 1; previous >= 0; previous -= 1) {
+    const candidate = workspaces[previous];
+    if (candidate?.worktree?.repoKey !== workspace.worktree.repoKey) {
+      return 0;
+    }
+    if (candidate.worktree.isLinked === false) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 function blocks(workspaces: readonly Workspace[]): readonly (readonly Workspace[])[] {
@@ -65,7 +94,11 @@ function blocks(workspaces: readonly Workspace[]): readonly (readonly Workspace[
     const previous = result.at(-1);
     const joinsPrevious =
       workspace.worktree?.isLinked === true &&
-      previous?.some((item) => workspaceGroupKey(item) === workspaceGroupKey(workspace));
+      previous?.some(
+        (item) =>
+          item.worktree?.isLinked === false &&
+          workspaceGroupKey(item) === workspaceGroupKey(workspace),
+      );
     if (joinsPrevious && previous !== undefined) {
       previous.push(workspace);
     } else {
