@@ -12,6 +12,8 @@ The popup has three tabs:
 Herdr changes only when you apply a workspace draft. Saving priorities changes the plugin config
 only.
 
+![Workspace organizer showing the Manual tab with worktrees grouped under their repository roots](docs/images/workspace-organizer.png)
+
 ## Requirements
 
 - Herdr 0.9.3 or newer
