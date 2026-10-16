@@ -3,14 +3,17 @@
 A Herdr plugin for reviewing and changing the order of workspaces. The plugin ID and repository name
 are `herdr-workspace-organizer`.
 
-The popup has three tabs:
+The popup has four tabs:
 
 - **Manual**: pick a workspace and move it in a draft.
 - **Suggested order**: preview your category priorities inside repository trees.
 - **Priorities**: add, rename, delete, and reorder categories.
+- **Move panes**: choose panes on the current Herdr tab and move them into a new Herdr tab or a new
+  workspace.
 
-Herdr changes only when you apply a workspace draft. Saving priorities changes the plugin config
-only.
+Herdr's workspace order changes only when you apply a workspace draft. Saving priorities changes
+the plugin config only. Enter on Move panes does not apply that draft. It moves the unmarked panes
+immediately.
 
 ![Workspace organizer showing the Manual tab with worktrees grouped under their repository roots](docs/images/workspace-organizer.png)
 
@@ -57,20 +60,47 @@ workspace picker.
 
 ## Keys
 
-| Key               | Action                                                                          |
-| ----------------- | ------------------------------------------------------------------------------- |
-| Tab               | Switch tabs                                                                     |
-| Up/Down or j/k    | Select an item                                                                  |
-| Shift+K / Shift+J | Move a workspace or priority up/down                                            |
-| u                 | Reset the Manual draft                                                          |
-| a                 | Add a priority                                                                  |
-| e                 | Edit a priority                                                                 |
-| d                 | Delete a priority                                                               |
-| Enter             | Apply the visible workspace draft and close, or save priorities without closing |
-| Esc / q           | Cancel and close                                                                |
+| Key               | Action                                                                     |
+| ----------------- | -------------------------------------------------------------------------- |
+| Tab               | Switch tabs. This never applies a draft, saves priorities, or moves panes. |
+| Up/Down or j/k    | Select an item                                                             |
+| Shift+K / Shift+J | Move a workspace or priority up/down. Not used on Move panes.              |
+| u                 | Reset the Manual draft. Not used on Move panes.                            |
+| a / e / d         | Add, rename, or delete a priority. Not used on Move panes.                 |
+| Space             | On Move panes, toggle whether the highlighted pane stays                   |
+| s                 | On Move panes, toggle a new Herdr tab or a new workspace                   |
+| n                 | On Move panes, edit the topic name                                         |
+| x                 | On Move panes, clear stay marks. This does not close the popup.            |
+| Enter             | Apply the workspace draft, save priorities, or move panes. See below.      |
+| Esc / q           | Cancel and close                                                           |
 
-While you type a category, Enter finishes the text and Esc cancels it. Press Enter again to save the
-priorities. Categories are lowercased, and duplicates are rejected.
+Enter depends on the tab:
+
+- **Manual** and **Suggested order**: apply the workspace draft and close when it changed.
+- **Priorities**: save priorities and stay open.
+- **Move panes**: move every pane that is not marked stay. The workspace draft is left untouched.
+
+On Move panes, Enter does nothing else when the topic name is empty (it opens the name editor) or
+when every pane is marked stay. A zoomed Herdr tab, or a pane list that changed since the popup
+opened, also moves nothing. The first pane fills the new Herdr tab. Each later pane splits the
+largest destination pane in half, down when that pane is at least as tall as it is wide, and right
+otherwise. `pane.move` is called with focus left unchanged. After every move succeeds, the popup
+focuses the new Herdr tab once and closes.
+
+The default destination is a new Herdr tab in the current workspace. `s` switches to a new
+workspace. Both use the same topic name. The name is not lowercased. Agents keep running. An
+in-flight `agent.wait` ends with `agent_not_running` and is not restarted.
+
+If the move would empty the source, the status line says so before Enter. Herdr closes an empty
+Herdr tab. Moving every pane into a new workspace from the only Herdr tab closes that workspace.
+
+While you type a category or a topic name, Enter finishes the text and Esc cancels it. On
+Priorities, press Enter again to save. Categories are lowercased, and duplicates are rejected. A
+topic name is kept as you typed it.
+
+A failed pane move stops the sequence. Moved panes stay where they are, and the request is not
+retried. If the socket times out or drops, the status line says the last request may have
+succeeded.
 
 Colors show why a position changed:
 
@@ -170,8 +200,10 @@ Aside from installing packages, the plugin downloads nothing at runtime.
 
 ## Safety and limits
 
-The plugin does not rename, close, or focus workspaces to reorder them. Moving past an edge does
-nothing. Socket requests time out after five seconds. Failed changes are not retried.
+Reordering does not rename, close, or focus workspaces. Moving past an edge does nothing. Socket
+requests time out after five seconds. Failed workspace and pane changes are not retried. Move panes
+can leave a Herdr tab empty, which Herdr then closes. A successful move focuses the new Herdr tab
+once. A partial move focuses it only when the source Herdr tab or workspace has already closed.
 
 Current limits:
 

@@ -4,7 +4,14 @@ import type { Workspace, WorkspaceClient } from "./types.js";
 import { responseSchema, workspaceListSchema } from "./schemas.js";
 import { isRecord } from "./utils.js";
 
-export class HerdrError extends Error {}
+export class HerdrError extends Error {
+  readonly mayHaveSucceeded: boolean;
+
+  constructor(message: string, mayHaveSucceeded = false) {
+    super(message);
+    this.mayHaveSucceeded = mayHaveSucceeded;
+  }
+}
 
 function errorMessage(value: unknown): string {
   if (!isRecord(value)) {
@@ -28,6 +35,7 @@ export class HerdrClient implements WorkspaceClient {
       const socket = createConnection(this.socketPath);
       let buffer = "";
       let settled = false;
+      let wrote = false;
 
       const fail = (error: Error): void => {
         if (settled) {
@@ -38,11 +46,19 @@ export class HerdrClient implements WorkspaceClient {
         reject(error);
       };
 
-      socket.setTimeout(5_000, () => fail(new HerdrError("Herdr socket timed out")));
+      socket.setTimeout(5_000, () => fail(new HerdrError("Herdr socket timed out", wrote)));
       socket.on("error", (error) => {
-        fail(new HerdrError(`cannot connect to Herdr socket ${this.socketPath}: ${error.message}`));
+        fail(
+          new HerdrError(
+            `cannot connect to Herdr socket ${this.socketPath}: ${error.message}`,
+            wrote,
+          ),
+        );
       });
-      socket.on("connect", () => socket.write(payload));
+      socket.on("connect", () => {
+        wrote = true;
+        socket.write(payload);
+      });
       socket.setEncoding("utf8");
       socket.on("data", (chunk: string) => {
         buffer += chunk;
@@ -78,7 +94,7 @@ export class HerdrClient implements WorkspaceClient {
       });
       socket.on("end", () => {
         if (!settled) {
-          fail(new HerdrError("Herdr closed the socket without a response"));
+          fail(new HerdrError("Herdr closed the socket without a response", wrote));
         }
       });
     });

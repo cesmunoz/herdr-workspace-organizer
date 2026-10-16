@@ -34,6 +34,18 @@ person's changes unless asked.
   next to it. Children move among their siblings.
 - Cyan `moved` means you moved it directly. Yellow `shifted` means it moved because something else
   moved. Green `current` means it is the focused workspace.
+- The popup has a fourth tab, Move panes (`panes`), after Priorities. Tab only cycles. It never
+  applies a workspace draft or saves priorities.
+- On Move panes, Enter runs live `pane.move` calls. It does not apply a workspace draft. A workspace
+  draft survives the visit. Manual and Suggested order still apply only the workspace draft.
+  Priorities still saves only the config.
+- Move panes starts with every pane set to move. Space toggles stay for the highlighted row. Stay
+  rows are not moved. `s` toggles a new Herdr tab or a new workspace. `n` edits the topic name and
+  does not run it through `normalizeOrder`.
+- An empty topic name, or every row marked stay, does not call `pane.move`. A zoomed tab or a
+  changed pane list does not call `pane.move` or `pane.zoom`.
+- Pane moves stop on the first failure. They are not retried. A dropped socket after a write is not
+  a safe retry.
 - The suggested order keeps repository roots in place and sorts their children. A standalone
   workspace with no group stays in place in the tree-aware suggestion.
 - The CLI `sort` keeps the old flat-list sorting when there is no worktree metadata.

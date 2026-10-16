@@ -4,7 +4,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { HerdrClient } from "../src/client.js";
+import { HerdrClient, HerdrError } from "../src/client.js";
 
 for (const scenario of ["valid", "invalid", "error"] as const) {
   test(`socket protocol: ${scenario} response`, async (context) => {
@@ -50,3 +50,24 @@ for (const scenario of ["valid", "invalid", "error"] as const) {
     }
   });
 }
+
+test("a socket drop after the request is written may have succeeded", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "herdr-socket-"));
+  const path = join(directory, "test.sock");
+  const server = createServer((socket) => {
+    socket.once("data", () => socket.destroy());
+  });
+  await new Promise<void>((resolve) => server.listen(path, resolve));
+  context.after(async () => {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+    await rm(directory, { recursive: true, force: true });
+  });
+  const client = new HerdrClient(path);
+  await assert.rejects(client.workspaces(), (error: unknown) => {
+    assert.ok(error instanceof HerdrError);
+    assert.equal(error.mayHaveSucceeded, true);
+    return true;
+  });
+});

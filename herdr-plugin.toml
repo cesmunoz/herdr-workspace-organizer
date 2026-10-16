@@ -14,7 +14,7 @@ command = ["pnpm", "run", "build"]
 [[panes]]
 id = "organizer"
 title = "Workspace Organizer"
-description = "Interactively reorder Herdr workspaces."
+description = "Interactively reorder Herdr workspaces and move panes to a new Herdr tab or workspace."
 placement = "popup"
 width = 86
 height = "72%"
