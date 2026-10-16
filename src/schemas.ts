@@ -41,3 +41,60 @@ export const configSchema = z.object({
   order: z.array(z.string().trim().toLowerCase().min(1)).min(1),
 });
 export type PluginConfig = z.infer<typeof configSchema>;
+
+export const pluginContextSchema = z.object({
+  workspace_id: z.string().optional(),
+  tab_id: z.string().optional(),
+  focused_pane_id: z.string().optional(),
+});
+
+const paneRectSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
+});
+
+const layoutPaneSchema = z.object({
+  pane_id: z.string(),
+  rect: paneRectSchema,
+});
+
+export const paneLayoutSchema = z.object({
+  workspace_id: z.string(),
+  tab_id: z.string(),
+  zoomed: z.boolean(),
+  focused_pane_id: z.string().optional(),
+  panes: z.array(layoutPaneSchema),
+});
+
+const paneInfoSchema = z.object({
+  pane_id: z.string(),
+  tab_id: z.string().optional(),
+  label: z.string().nullish(),
+  agent: z.string().nullish(),
+  agent_status: z.string().optional(),
+});
+
+export const paneListSchema = z.object({
+  panes: z.array(paneInfoSchema),
+});
+
+export const tabListSchema = z.object({
+  tabs: z.array(z.object({ tab_id: z.string() })),
+});
+
+export const paneMoveSchema = z.object({
+  changed: z.boolean(),
+  reason: z.string().nullish(),
+  previous_pane_id: z.string().optional(),
+  pane: z.object({ pane_id: z.string() }),
+  target_layout: paneLayoutSchema.optional(),
+  created_tab: z
+    .object({
+      tab_id: z.string(),
+    })
+    .nullish(),
+  closed_tab_id: z.string().nullish(),
+  closed_workspace_id: z.string().nullish(),
+});
